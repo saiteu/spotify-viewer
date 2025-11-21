@@ -1,3 +1,4 @@
+// src/Callback.tsx
 import { useEffect } from "react";
 import { clientId, redirectUri } from "./auth";
 
@@ -24,8 +25,9 @@ export default function Callback() {
       .then((res) => res.json())
       .then((data) => {
         localStorage.setItem("access_token", data.access_token);
-        window.location.href = "/";
-      });
+        window.location.href = "/#/";
+      })
+      .catch(console.error);
   }, []);
 
   return <div>Authenticating...</div>;

@@ -1,7 +1,7 @@
 // src/auth.ts
 export const clientId = "c853ef055d0c4307907f7d3174e6b195";
 
-// HashRouter 用 callback URL
+// 中継ページ用 Redirect URI
 export const redirectUri =
   "https://saiteu.github.io/spotify-viewer/callback.html";
 
@@ -43,7 +43,7 @@ export async function redirectToSpotifyAuth() {
   const params = new URLSearchParams({
     client_id: clientId,
     response_type: "code",
-    redirect_uri: redirectUri, // encode しない
+    redirect_uri: redirectUri, // ここは encode しない
     code_challenge_method: "S256",
     code_challenge: challenge,
     scope: scopes,
