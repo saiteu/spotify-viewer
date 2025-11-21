@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.js": "/spotify-viewer/static/js/main.33136be0.js",
+    "index.html": "/spotify-viewer/index.html",
+    "main.33136be0.js.map": "/spotify-viewer/static/js/main.33136be0.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.33136be0.js"
+  ]
+}
