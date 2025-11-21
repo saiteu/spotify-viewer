@@ -6,11 +6,15 @@
   </head>
   <body>
     <script>
+      window.onload(() => {
+        console.log("callback.html load!!");
+      });
       // URL の ?code=XXXXX をハッシュ付き URL に変換して React に渡す
+      console.log("@@@@");
       const params = new URLSearchParams(window.location.search);
       const code = params.get("code");
       if (code) {
-        window.location.href = "/#callback?code=" + code;
+        window.location.href = "/#/callback?code=" + code;
       } else {
         window.location.href = "/#/";
       }
