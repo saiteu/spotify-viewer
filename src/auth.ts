@@ -1,6 +1,10 @@
-// auth.ts
+// src/auth.ts
 export const clientId = "c853ef055d0c4307907f7d3174e6b195";
-export const redirectUri = "https://kouki.github.io/spotify-viewer/callback";
+
+// HashRouter 用 callback URL
+export const redirectUri =
+  "https://saiteu.github.io/spotify-viewer/callback.html";
+
 export const scopes = [
   "user-read-currently-playing",
   "user-read-playback-state",
@@ -8,7 +12,12 @@ export const scopes = [
 ].join(" ");
 
 function base64encode(buffer: ArrayBuffer) {
-  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+  const uint8Array = new Uint8Array(buffer);
+  const charString = String.fromCharCode.apply(
+    null,
+    Array.from(uint8Array) as any
+  );
+  return btoa(charString)
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/, "");
@@ -34,7 +43,7 @@ export async function redirectToSpotifyAuth() {
   const params = new URLSearchParams({
     client_id: clientId,
     response_type: "code",
-    redirect_uri: redirectUri,
+    redirect_uri: redirectUri, // encode しない
     code_challenge_method: "S256",
     code_challenge: challenge,
     scope: scopes,

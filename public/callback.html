@@ -1,0 +1,21 @@
+<!-- public/callback.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Spotify Callback</title>
+  </head>
+  <body>
+    <script>
+      // URL の ?code=XXXX をハッシュ付き URL に変換して React App に渡す
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      if (code) {
+        // ハッシュ付き URL にリダイレクト
+        window.location.href = "/#callback?code=" + code;
+      } else {
+        window.location.href = "/#/";
+      }
+    </script>
+  </body>
+</html>
