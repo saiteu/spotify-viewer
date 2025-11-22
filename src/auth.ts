@@ -2,8 +2,7 @@
 export const clientId = "c853ef055d0c4307907f7d3174e6b195";
 
 // 中継ページ用 Redirect URI
-export const redirectUri =
-  "https://saiteu.github.io/spotify-viewer/callback.html";
+export const redirectUri = "https://famous-custard-fc5264.netlify.app/callback";
 
 export const scopes = [
   "user-read-currently-playing",
