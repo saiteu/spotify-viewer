@@ -10,14 +10,13 @@ export default function App() {
   useEffect(() => {
     // URL hash から access_token を取得
     const hash = window.location.hash;
-    let accessToken =
+    const accessToken =
       token || new URLSearchParams(hash.replace("#", "?")).get("access_token");
 
     if (accessToken) {
       setToken(accessToken);
       localStorage.setItem("access_token", accessToken);
-      // ハッシュを消す
-      window.history.replaceState({}, document.title, "/");
+      window.history.replaceState({}, document.title, "/"); // ハッシュを消す
     }
 
     if (!accessToken) return;
