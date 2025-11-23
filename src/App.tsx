@@ -1,41 +1,43 @@
 // src/App.tsx
 import { useEffect, useState } from "react";
 import { redirectToSpotifyAuth } from "./auth";
-import { getValidAccessToken } from "./tokenManager";
 
 export default function App() {
+  const [token, setToken] = useState<string | null>(null);
   const [current, setCurrent] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("access_token")
-  );
 
   useEffect(() => {
-    // tokenを更新してからAPI呼び出し
-    async function load() {
-      let validToken = await getValidAccessToken();
+    // URL hash から access_token を取得
+    const hash = window.location.hash;
+    let accessToken =
+      token || new URLSearchParams(hash.replace("#", "?")).get("access_token");
 
-      if (!validToken) return;
-
-      setToken(validToken);
-
-      fetch("https://api.spotify.com/v1/me/player/currently-playing", {
-        headers: { Authorization: `Bearer ${validToken}` },
-      })
-        .then((res) => res.json())
-        .then((data) => setCurrent(data))
-        .catch(console.error);
-
-      fetch("https://api.spotify.com/v1/me/player/recently-played", {
-        headers: { Authorization: `Bearer ${validToken}` },
-      })
-        .then((res) => res.json())
-        .then((data) => setHistory(data.items || []))
-        .catch(console.error);
+    if (accessToken) {
+      setToken(accessToken);
+      localStorage.setItem("access_token", accessToken);
+      // ハッシュを消す
+      window.history.replaceState({}, document.title, "/");
     }
 
-    load();
-  }, []);
+    if (!accessToken) return;
+
+    // Now Playing
+    fetch("https://api.spotify.com/v1/me/player/currently-playing", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setCurrent(data))
+      .catch(console.error);
+
+    // Recently Played
+    fetch("https://api.spotify.com/v1/me/player/recently-played", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setHistory(data.items || []))
+      .catch(console.error);
+  }, [token]);
 
   if (!token)
     return <button onClick={redirectToSpotifyAuth}>Spotifyでログイン</button>;
@@ -62,6 +64,10 @@ export default function App() {
           <p>{h.track.name}</p>
         </div>
       ))}
+
+      <button style={{ marginTop: 20 }} onClick={redirectToSpotifyAuth}>
+        再ログイン / 更新
+      </button>
     </div>
   );
 }
