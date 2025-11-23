@@ -1,29 +1,41 @@
 // src/App.tsx
 import { useEffect, useState } from "react";
 import { redirectToSpotifyAuth } from "./auth";
+import { getValidAccessToken } from "./tokenManager";
 
 export default function App() {
   const [current, setCurrent] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
-  const token = localStorage.getItem("access_token");
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem("access_token")
+  );
 
   useEffect(() => {
-    if (!token) return;
+    // tokenを更新してからAPI呼び出し
+    async function load() {
+      let validToken = await getValidAccessToken();
 
-    fetch("https://api.spotify.com/v1/me/player/currently-playing", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => setCurrent(data))
-      .catch(console.error);
+      if (!validToken) return;
 
-    fetch("https://api.spotify.com/v1/me/player/recently-played", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => setHistory(data.items))
-      .catch(console.error);
-  }, [token]);
+      setToken(validToken);
+
+      fetch("https://api.spotify.com/v1/me/player/currently-playing", {
+        headers: { Authorization: `Bearer ${validToken}` },
+      })
+        .then((res) => res.json())
+        .then((data) => setCurrent(data))
+        .catch(console.error);
+
+      fetch("https://api.spotify.com/v1/me/player/recently-played", {
+        headers: { Authorization: `Bearer ${validToken}` },
+      })
+        .then((res) => res.json())
+        .then((data) => setHistory(data.items || []))
+        .catch(console.error);
+    }
+
+    load();
+  }, []);
 
   if (!token)
     return <button onClick={redirectToSpotifyAuth}>Spotifyでログイン</button>;

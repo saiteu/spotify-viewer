@@ -25,6 +25,9 @@ export default function Callback() {
       .then((res) => res.json())
       .then((data) => {
         localStorage.setItem("access_token", data.access_token);
+        if (data.refresh_token) {
+          localStorage.setItem("refresh_token", data.refresh_token); // 🔥追加
+        }
         window.location.href = "/#/";
       })
       .catch(console.error);
