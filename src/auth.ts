@@ -46,7 +46,7 @@ export async function redirectToSpotifyAuth() {
     code_challenge_method: "S256",
     code_challenge: challenge,
     scope: scopes,
-    show_disalog: "true",
+    show_dialog: "true",
   });
 
   window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
