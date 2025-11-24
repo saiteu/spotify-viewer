@@ -1,43 +1,33 @@
-// src/App.tsx
 import { useEffect, useState } from "react";
 import { redirectToSpotifyAuth } from "./auth";
+import { getValidToken } from "./tokenManager";
 
 export default function App() {
-  const [token, setToken] = useState<string | null>(null);
   const [current, setCurrent] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
 
   useEffect(() => {
-    // URL hash から access_token を取得
-    const hash = window.location.hash;
-    const accessToken =
-      token || new URLSearchParams(hash.replace("#", "?")).get("access_token");
+    async function load() {
+      const token = await getValidToken();
+      if (!token) return;
 
-    if (accessToken) {
-      setToken(accessToken);
-      localStorage.setItem("access_token", accessToken);
-      window.history.replaceState({}, document.title, "/"); // ハッシュを消す
+      fetch("https://api.spotify.com/v1/me/player/currently-playing", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => setCurrent(data));
+
+      fetch("https://api.spotify.com/v1/me/player/recently-played", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => setHistory(data.items));
     }
 
-    if (!accessToken) return;
+    load();
+  }, []);
 
-    // Now Playing
-    fetch("https://api.spotify.com/v1/me/player/currently-playing", {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-      .then((res) => res.json())
-      .then((data) => setCurrent(data))
-      .catch(console.error);
-
-    // Recently Played
-    fetch("https://api.spotify.com/v1/me/player/recently-played", {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    })
-      .then((res) => res.json())
-      .then((data) => setHistory(data.items || []))
-      .catch(console.error);
-  }, [token]);
-
+  const token = localStorage.getItem("access_token");
   if (!token)
     return <button onClick={redirectToSpotifyAuth}>Spotifyでログイン</button>;
 
@@ -63,10 +53,6 @@ export default function App() {
           <p>{h.track.name}</p>
         </div>
       ))}
-
-      <button style={{ marginTop: 20 }} onClick={redirectToSpotifyAuth}>
-        再ログイン / 更新
-      </button>
     </div>
   );
 }
